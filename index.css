@@ -54,9 +54,11 @@
     transition-duration: 0.218s;
     transition-property: background, border, opacity, box-shadow, transform;
     transition-timing-function: ease-in;
+
   }
   
   #form {
+
     position: relative;
     border: none;
     margin: 1px;
@@ -64,6 +66,7 @@
     transition-duration: 0.218s;
     transition-property: background, border, opacity, box-shadow, transform;
     transition-timing-function: ease-in;
+   
   }
   
   .form-open {
