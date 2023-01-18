@@ -19,6 +19,7 @@ this.$modal = document.querySelector('.modal') // modal
 this.$modalTitle = document.querySelector('.modal-title')
 this.$modalText = document.querySelector('.modal-text') 
 this.$closeModalButton = document.querySelector('.modal-close-button') //close modal button
+this.$colorTool = document.querySelector('#color-tooltip')
 
 this.addListeners() //trigger func - 4
 }
@@ -28,6 +29,7 @@ addListeners(){
       this.handleFormClick(event) 
       this.selectNote(event)
       this.openModal(event)
+      
     })
 
     //func to listen for form submit - 7
@@ -42,6 +44,10 @@ addListeners(){
         }
     })
 
+    //event to bring a color-tool when body is hoovered - 27
+    document.body.addEventListener('mouseover', event => {
+        this.openToolTip(event)
+    })
     //close button - 21
     this.$closeButton.addEventListener('click', event =>{
         event.stopPropagation() //envoking funct that prevents default behavior of the whole handleFormClick()
@@ -105,22 +111,23 @@ closeModal(event){
     this.editNote()
     this.$modal.classList.toggle('open-modal') //close modal 
 }
-//selected note - 23 bring a stored data from modal for edit
-selectNote(event){
-   const $selectedNote = event.target.closest('.note')
-   if(!$selectedNote) return //condition to allow selected note to be edited or continue as is - 24
-   const [$noteText, $noteTitle] = $selectedNote.children //children = returns an array of items within them
-   this.text = $noteText.innerHTML //to access the items to the page 
-   this.title = $noteTitle.innerHTML // ''
-   this.id = $selectedNote.dataset.id //way to interact with data from the dom thru id
-     
-}
 
+//function color-tool when hovered to appear-28
+openToolTip(event){
+    if(!event.target.matches('.toolbar-color'))return // if it does match the selected target it returns the event
+   this.id =  event.target.nextElementSibling.dataset.id //nextElementSibling allows to get data from the next <div> after toolbar
+    const noteCords = event.target.getBoundingClientRect() //func = get specific coordinates of the notes that are being hovered
+    const horizontal = noteCords.left + window.scrollX //horizontal cordinate of how much the user scrolls X position
+    const vertical = noteCords.top + window.scrollY // vertical cordinate '' '' ''
+    this.$colorTool.style.transform = `translate(${horizontal}px, ${vertical}px)` //to position tool-color in relation with user mouse event
+    this.$colorTool.style.display = 'flex'
+
+}
 //funct to add note added
 addNote({title, text}){
-// func to add note 12 === object destructured
-const newNote = {
-    title, text, //object destructure === from the [] of notes
+    // func to add note 12 === object destructured
+    const newNote = {
+        title, text, //object destructure === from the [] of notes
     color: 'white', 
     id: this.notes.length > 0 ? this.notes[this.notes.length - 1].id + 1 : 1 //conditional add of a not if there is a not already in the array - 13
 }
@@ -133,11 +140,23 @@ this.closeForm() // to close form after adding note - 19
 editNote(){ // func to edit the already submitted note - 26
     const title = this.$modalTitle.value
     const text = this.$modalText.value
-    this.notes = this.notes.map(note => {
-        note.id === Number(this.id) ? {...note, text,title} : note //
-    }) //updating the notes array to bring in new edited note or just retain if note if not edited.
-this.displayNotes()
-}
+    this.notes = this.notes.map(note => 
+        note.id === Number(this.id) ? {...note, title, text} : note //conditionally making the id a number(from a string) so to match the id of notes
+        ) //updating the notes array to bring in new edited note or just retain if note if not edited.
+        
+        this.displayNotes()
+    }
+    
+    //selected note - 23 bring a stored data from modal for edit
+    selectNote(event){
+       const $selectedNote = event.target.closest('.note')
+       if(!$selectedNote) return //condition to allow selected note to be edited or continue as is - 24
+       const [$noteText, $noteTitle] = $selectedNote.children //children = returns an array of items within them
+       this.text = $noteText.innerHTML //to access the items to the page 
+       this.title = $noteTitle.innerHTML // ''
+       this.id = $selectedNote.dataset.id //way to interact with data from the dom thru id
+         
+    }
 
 displayNotes(){
     //conditional display of added notes - 16
@@ -145,7 +164,9 @@ const hasNotes = this.notes.length > 0
 this.$placeholder.style.display = hasNotes ? 'flex': 'none'
 
 //making the notes display on page - 17
-this.$notes.innerHTML = this.notes.map(note => 
+this.$notes.innerHTML = this.notes
+.map(
+    note => 
 
     `
     <div style=${note.color} class='note'>
