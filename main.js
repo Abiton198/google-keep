@@ -19,7 +19,7 @@ this.$modal = document.querySelector('.modal') // modal
 this.$modalTitle = document.querySelector('.modal-title')
 this.$modalText = document.querySelector('.modal-text') 
 this.$closeModalButton = document.querySelector('.modal-close-button') //close modal button
-this.$colorTool = document.querySelector('#color-tooltip')
+this.$colorTool = document.querySelector('#color-tooltip') //color-tool-tip
 
 this.addListeners() //trigger func - 4
 }
@@ -47,12 +47,19 @@ addListeners(){
     //event to bring a color-tool when body is hoovered - 27
     document.body.addEventListener('mouseover', event => {
         this.openToolTip(event)
+        // console.log('mouse moved')
+    })
+
+     //event to close a color-tool when mouse is hoovered away- 27
+     document.body.addEventListener('mouseout', event => {
+        this.closeToolTip(event)
+        console.log('mouse moved')
     })
     //close button - 21
     this.$closeButton.addEventListener('click', event =>{
         event.stopPropagation() //envoking funct that prevents default behavior of the whole handleFormClick()
         this.closeForm()
-    })
+    }) 
 
     //close-modal-button
     this.$closeModalButton.addEventListener('click', event => {
@@ -121,7 +128,13 @@ openToolTip(event){
     const vertical = noteCords.top + window.scrollY // vertical cordinate '' '' ''
     this.$colorTool.style.transform = `translate(${horizontal}px, ${vertical}px)` //to position tool-color in relation with user mouse event
     this.$colorTool.style.display = 'flex'
+    //style not read
+}
 
+//func to close colortool when mouseout
+closeToolTip(event){
+    if(!event.target.matches('.toolbar-color'))return
+    this.$colorTool.style.display = 'flex'
 }
 //funct to add note added
 addNote({title, text}){
@@ -184,5 +197,7 @@ this.$notes.innerHTML = this.notes
 ).join('') //to join elements of the map[] into one string - 18
 
 }
+
+
 } 
 new App() 
