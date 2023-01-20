@@ -29,6 +29,7 @@ addListeners(){
       this.handleFormClick(event) 
       this.selectNote(event)
       this.openModal(event)
+      this.deleteNote(event)
       
     })
 
@@ -50,10 +51,29 @@ addListeners(){
         // console.log('mouse moved')
     })
 
-     //event to close a color-tool when mouse is hoovered away- 27
+     //event to close a color-tool when mouse is hoovered away- 29
      document.body.addEventListener('mouseout', event => {
         this.closeToolTip(event)
         console.log('mouse moved')
+    })
+
+    
+    
+    //func = when tooltip hovered to remain open - 31
+    this.$colorTool.addEventListener('mouseover', function(){
+        this.style.display = 'flex'
+    })
+    
+    //func dec = when tooltip hovered to close - 32
+    this.$colorTool.addEventListener('mouseout', function(){
+        this.style.display = 'none'
+    })
+    //event to edit color tool tip - 33
+    this.$colorTool.addEventListener('click', event => {
+        const color = event.target.dataset.id
+        if(color){      
+            this.editNoteColor(color)
+        }
     })
     //close button - 21
     this.$closeButton.addEventListener('click', event =>{
@@ -106,6 +126,8 @@ closeForm(){
 
 //func for modal - 22
 openModal(event) {
+    if(event.target.matches('toolbar-delete'))return
+
    if (event.target.closest('.note')) { //closest() = respond to mouse event nearest to the selected item class or id
     this.$modal.classList.toggle('open-modal') //toggle() - makes modal open
     this.$modalTitle.value = this.title
@@ -122,16 +144,16 @@ closeModal(event){
 //function color-tool when hovered to appear-28
 openToolTip(event){
     if(!event.target.matches('.toolbar-color'))return // if it does match the selected target it returns the event
-   this.id =  event.target.nextElementSibling.dataset.id //nextElementSibling allows to get data from the next <div> after toolbar
-    const noteCords = event.target.getBoundingClientRect() //func = get specific coordinates of the notes that are being hovered
-    const horizontal = noteCords.left + window.scrollX //horizontal cordinate of how much the user scrolls X position
-    const vertical = noteCords.top + window.scrollY // vertical cordinate '' '' ''
-    this.$colorTool.style.transform = `translate(${horizontal}px, ${vertical}px)` //to position tool-color in relation with user mouse event
-    this.$colorTool.style.display = 'flex'
+        this.id =  event.target.dataset.id //nextElementSibling allows to get data from the next <div> after toolbar
+        const noteCords = event.target.getBoundingClientRect() //func = get specific coordinates of the notes that are being hovered
+        const horizontal = noteCords.left + window.scrollX //horizontal cordinate of how much the user scrolls X position
+        const vertical = noteCords.top + window.scrollY // vertical cordinate '' '' ''
+        this.$colorTool.style.transform = `translate(${horizontal}px, ${vertical}px)` //to position tool-color in relation with user mouse event
+        this.$colorTool.style.display = 'flex'
     //style not read
 }
 
-//func to close colortool when mouseout
+//func to close colortool when mouseout - 30
 closeToolTip(event){
     if(!event.target.matches('.toolbar-color'))return
     this.$colorTool.style.display = 'flex'
@@ -160,6 +182,30 @@ editNote(){ // func to edit the already submitted note - 26
         this.displayNotes()
     }
     
+    //func to delete note when selected - 36
+    deleteNote(event){
+        event.stopPropagation()
+        if(!event.target.matches('.toolbar-delete')) return
+        const id = event.target.dataset.id
+        this.notes.filter(note => (note.id !== Number(id))) //filter() selects only the targeted note
+        this.render()
+    }
+    
+    render(){
+        saveNote()
+        this.displayNotes()
+    }
+
+    //save notes to a local storage
+    saveNote(){
+        localStorage.setItem('notes', JSON.stringify(this.notes)) //setItem() - has 2 value pairs, stringfy() - to turn into strings
+    }
+    //func to edit color on the color tip - 34
+    editNoteColor(){
+        this.notes = this.notes.map(note => 
+            note.id === Number(this.id) ? {...note, color} : note
+            )
+    }
     //selected note - 23 bring a stored data from modal for edit
     selectNote(event){
        const $selectedNote = event.target.closest('.note')
@@ -187,8 +233,8 @@ this.$notes.innerHTML = this.notes
              <div class="note-text">${note.text}</div>
                 <div class="toolbar-container">
                     <div class="toolbar">
-                        <img class="toolbar-color" src="https://icon.now.sh/palette"/>
-                            <img class="toolbar-delete" src="https://icon.now.sh/delete"/>
+                        <img class="toolbar-color" data-id=${note.id} src="https://icon.now.sh/palette"/>
+                            <img class="toolbar-delete" data-id=${note.id} src="https://icon.now.sh/delete"/>
                             </div>
                 </div>
     
