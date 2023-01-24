@@ -1,7 +1,7 @@
 //create a constructor func - 1
 class App {
     constructor(){
-        this.notes = [] //new array to store the created notes(from addNote())
+        this.notes = JSON.parse(localStorage.getItem('notes')) || [] //new array to store the created notes(from addNote())....saved notes on web turned to local storage as a string
         this.title = '' //to all a new string to be created for editing
         this.text = '' // ''
         this.id = '' // ''
@@ -21,6 +21,7 @@ this.$modalText = document.querySelector('.modal-text')
 this.$closeModalButton = document.querySelector('.modal-close-button') //close modal button
 this.$colorTool = document.querySelector('#color-tooltip') //color-tool-tip
 
+this.render()
 this.addListeners() //trigger func - 4
 }
 //add eventListner func - 3
@@ -167,7 +168,7 @@ addNote({title, text}){
     id: this.notes.length > 0 ? this.notes[this.notes.length - 1].id + 1 : 1 //conditional add of a not if there is a not already in the array - 13
 }
  this.notes = [...this.notes, newNote] //manual updating of the notes array - 14
-this.displayNotes() //function to display notes - 15
+this.render() //function to display notes - 15
 this.closeForm() // to close form after adding note - 19
 
 }
@@ -179,7 +180,7 @@ editNote(){ // func to edit the already submitted note - 26
         note.id === Number(this.id) ? {...note, title, text} : note //conditionally making the id a number(from a string) so to match the id of notes
         ) //updating the notes array to bring in new edited note or just retain if note if not edited.
         
-        this.displayNotes()
+        this.render()
     }
     
     //func to delete note when selected - 36
@@ -191,13 +192,13 @@ editNote(){ // func to edit the already submitted note - 26
         this.render()
     }
     
-    render(){
-        saveNote()
+    render(){ //change all displayNotes to render() - 37
+        this.saveNotes()
         this.displayNotes()
     }
 
     //save notes to a local storage
-    saveNote(){
+    saveNotes(){
         localStorage.setItem('notes', JSON.stringify(this.notes)) //setItem() - has 2 value pairs, stringfy() - to turn into strings
     }
     //func to edit color on the color tip - 34
@@ -234,7 +235,7 @@ this.$notes.innerHTML = this.notes
                 <div class="toolbar-container">
                     <div class="toolbar">
                         <img class="toolbar-color" data-id=${note.id} src="https://icon.now.sh/palette"/>
-                            <img class="toolbar-delete" data-id=${note.id} src="https://icon.now.sh/delete"/>
+                            <img class="toolbar-delete" data-id=${note.id} src='https://icon.now.sh/delete'/>
                             </div>
                 </div>
     
@@ -247,3 +248,7 @@ this.$notes.innerHTML = this.notes
 
 } 
 new App() 
+
+// ISSUES
+// icons not displaying from img src?
+//delete & toolbar func not working because icons are not displaying
